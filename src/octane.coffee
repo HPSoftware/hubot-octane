@@ -35,7 +35,7 @@ module.exports = (robot) ->
   robot.e.create {verb: 'create', entity: 'ticket',
   help: 'create ticket', type: 'respond'}, (msg)->
     robot.logger.debug  'in octane create ticket'
-    msg.reply 'in octane create ticket 111'
+    msg.reply 'in octane create ticket'
 
   robot.e.create {verb: 'update', entity: 'ticket',
   help: 'update ticket', type: 'hear'}, (msg)->
