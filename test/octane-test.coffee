@@ -29,6 +29,7 @@ helper = new Helper([
   '../src/octane.coffee'])
 
 describe 'octane', ->
+  this.timeout 10000
   beforeEach ->
     @room = helper.createRoom()
 
