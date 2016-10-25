@@ -9,7 +9,7 @@ See [`src/octane.coffee`](src/octane.coffee) for full documentation.
 ### RUN
   1. install [docker](https://docs.docker.com/engine/installation/)
   2. [Configure your chat platform](https://github.com/eedevops/hubot-enterprise/wiki/bootstrap#1-select-a-collaboration-platform)
-  3. `docker pull chatopshpe/hubot-octane`
+  3. `docker pull dshmaya/hubot-octane`
   4. run docker:
 
     ```bash
@@ -22,13 +22,15 @@ See [`src/octane.coffee`](src/octane.coffee) for full documentation.
        -e "HUBOT_LOG_LEVEL=info" \
        -e "SLACK_APP_TOKEN=xxxxxxxxx" \
        -e "HUBOT_SLACK_TOKEN=xxxxxxxxxxx" \
-	   chatopshpe/hubot-octane`
+	   dshmaya/hubot-octane`
 	```
   5. for more run options- [hubot-enterprise wiki](https://github.com/eedevops/hubot-enterprise/wiki/bootstrap#running-hubot-enterprise-via-docker)
 
 ## Installation - npm
 
-In hubot project repo, run:
+install [hubot enterprise](https://github.com/eedevops/hubot-enterprise/wiki/bootstrap#new-instance--cli)
+
+In hubot enterprise project workdir, run:
 
 `npm install hubot-octane --save`
 
