@@ -26,7 +26,7 @@ module.exports = (robot) ->
 
   octane = new Octane({
     protocol : "http",
-    host :  "myd-vm10629.hpeswlab.net",
+    host :  "XXX",
     port :  8081,
     shared_space_id : 1001,
     workspace_id : 1002
@@ -50,8 +50,8 @@ module.exports = (robot) ->
     (msg)->
       robot.logger.debug 'in get defect by id'
       octane.authenticate({
-        username :  "sa@nga",
-        password :  "Welcome1"
+        username :  "",
+        password :  ""
       }, (err) ->
         if (err)
           robot.logger.debug('Error - %s', err.message)
@@ -81,8 +81,8 @@ module.exports = (robot) ->
     (msg)->
       robot.logger.debug 'in search defect by text'
       octane.authenticate({
-        username :  "sa@nga",
-        password :  "Welcome1"
+        username :  "",
+        password :  ""
       }, (err) ->
         if (err)
           robot.logger.debug('Error - %s', err.message)
@@ -112,8 +112,8 @@ module.exports = (robot) ->
   #    (msg)->
   #      robot.logger.debug 'in update defect'
   #      octane.authenticate({
-  #        username :  "sa@nga",
-  #        password :  "Welcome1"
+  #        username :  "",
+  #        password :  ""
   #      }, (err) ->
   #        if (err)
   #          robot.logger.debug('Error - %s', err.message)
@@ -152,8 +152,8 @@ module.exports = (robot) ->
     (msg)->
       robot.logger.debug 'in create defect'
       octane.authenticate({
-        username :  "sa@nga",
-        password :  "Welcome1"
+        username :  "",
+        password :  ""
       }, (err) ->
         if (err)
           robot.logger.debug('Error - %s', err.message)
