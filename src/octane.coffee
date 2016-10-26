@@ -70,7 +70,7 @@ module.exports = (robot) ->
             textDefect += "\nName: "+defect.name
             textDefect += "\nSeverity: "+defect.severity.name
             message =
-              text: "Defect ID: "+defect.id+"\nName: "+defect.name+"\nSeverity: "+defect.severity.name
+              text: textDefect
               color: "warning"
             robot.e.adapter.message msg, message, false
         )
@@ -88,7 +88,9 @@ module.exports = (robot) ->
           robot.logger.debug('Error - %s', err.message)
         return
         octane.workItems.getAll({
-          text_search: JSON.stringify({"type":"global","text":msg.match[1]}) , query: Query.field('subtype').equal('defect')
+          text_search: JSON.stringify({
+            "type":"global","text":msg.match[1]
+          }),query: Query.field('subtype').equal('defect')
         }, (err, defects) ->
           if (err)
             robot.logger.debug('Error - %s', err.message)
@@ -99,7 +101,8 @@ module.exports = (robot) ->
           for defect in defects
             textDefect = "Defect ID: "+defect.id
             textDefect += "\nName: "+defect.global_text_search_result.name
-            textDefect += "\nDescription: "+defect.global_text_search_result.description
+            defectDesc = defect.global_text_search_result.description
+            textDefect += "\nDescription: "+defectDesc
             message =
               text: textDefect
               color: "warning"
@@ -147,7 +150,7 @@ module.exports = (robot) ->
   #        )
   #      )
 
-  robot.e.create {verb: 'create', entity: 'defect', regex_suffix: {re: undefined, optional:true}
+  robot.e.create {verb: 'create', entity: 'defect',
   help: 'create defect', type: 'hear'},
     (msg)->
       robot.logger.debug 'in create defect'
@@ -165,8 +168,9 @@ module.exports = (robot) ->
           if (err)
             robot.logger.debug('Error - %s', err.message)
             return
+          high = 'list_node.severity.very_high'
           octane.listNodes.getAll({
-            query: Query.field('logical_name').equal('list_node.severity.very_high')
+            query: Query.field('logical_name').equal(high)
           }, (err, severities) ->
             if (err)
               robot.logger.debug('Error - %s', err.message)
