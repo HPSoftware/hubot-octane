@@ -14,8 +14,7 @@
     "bluebird": "^3.3.4"
   },
   "peerDependencies": {
-    "hubot": "2.x",
-    "node-octane": "0.1.0"
+    "hubot": "2.x"
   },
   "devDependencies": {
     "hubot-test-helper": "1.5.0",
