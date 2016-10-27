@@ -21,7 +21,7 @@
 
 module.exports = (robot) ->
 
-  Octane = require('node-octane')
+  Octane = require('octane')
   Query = require('../../node-octane/lib/query')
 
   octane = new Octane({
