@@ -96,7 +96,7 @@ module.exports = (robot) ->
       }, (err) ->
         if (err)
           robot.logger.debug('Error - %s', err.message)
-        return
+          return
         octane.workItems.getAll({
           text_search: JSON.stringify({
             "type":"global","text":msg.match[1]
@@ -120,45 +120,48 @@ module.exports = (robot) ->
         )
       )
 
-  #  robot.e.create {verb: 'update', entity: 'defect',
-  #  help: 'update defect', type: 'hear'},
-  #    (msg)->
-  #      robot.logger.debug 'in update defect'
-  #      octane.authenticate({
-  #        username :  "",
-  #        password :  ""
-  #      }, (err) ->
-  #        if (err)
-  #          robot.logger.debug('Error - %s', err.message)
-  #          return
-  #        octane.listNodes.getAll({ query: Query.field('logical_name').equal('list_node.severity.very_high') }, (err, severities) ->
-  #          if (err)
-  #            robot.logger.debug('Error - %s', err.message)
-  #            return
-  #
-  #          octane.phases.getAll({ query: Query.field('logical_name').equal('phase.defect.new') }, (err, phases) ->
-  #            if (err)
-  #              robot.logger.debug('Error - %s', err.message)
-  #              return
-  #            defect = {
-  #              name: msg.match[1],
-  #              parent: wis[0],
-  #              severity: severities[0],
-  #              phase: phases[0]
-  #            }
-  #            octane.defects.create(defect, (err, defect) ->
-  #              if (err)
-  #                robot.logger.debug('Error - %s', err.message)
-  #                return
-  #              message =
-  #                title: "Defect create successfully"
-  #                text: "Description: "+msg.match[1]
-  #                color: "good"
-  #              robot.e.adapter.message msg, message, false
-  #            )
-  #          )
-  #        )
-  #      )
+    robot.e.create {verb: 'update', entity: 'defect',
+    help: 'update defect [ID] [field]=[Value]', type: 'hear'},
+      (msg)->
+        robot.logger.debug 'in update defect'
+        octane.authenticate({
+          username :  "",
+          password :  ""
+        }, (err) ->
+          if (err)
+            robot.logger.debug('Error - %s', err.message)
+            return
+
+          fieldPart = msg.match[1].split(" ")[1]
+          fieldName = fieldPart.split("=")[0]
+          fieldValue = fieldPart.split("=")[1]
+
+          listNode = 'list_node.'+fieldName+'.'+fieldValue
+          octane.listNodes.getAll({
+            query: Query.field('logical_name').equal(listNode)
+          }, (err, listNodes) ->
+            if (err)
+              robot.logger.debug('Error - %s', err.message)
+              return
+            update = {
+              id: msg.match[1].split(" ")[0]
+            }
+            update[fieldName] = listNodes[0]
+            octane.defects.update(update, (err, updated)->
+              if err
+                robot.logger.debug('Error - %s', err.message)
+                return
+              textDefect = "Defect ID: "+updated.id
+              textDefect += "\nName: "+updated.name
+              textDefect += "\n"+fieldName+": "+updated[fieldName].name
+              message =
+                text: textDefect
+                color: "warning"
+              robot.e.adapter.message msg, message, false
+            )
+
+          )
+        )
 
   robot.e.create {verb: 'create', entity: 'defect',
   help: 'create defect', type: 'hear'},
@@ -204,7 +207,7 @@ module.exports = (robot) ->
                   return
                 message =
                   title: "Defect create successfully"
-                  text: "Description: "+msg.match[1]
+                  text: "ID is: "+defect.id
                   color: "good"
                 robot.e.adapter.message msg, message, false
               )
