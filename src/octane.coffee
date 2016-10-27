@@ -86,7 +86,7 @@ module.exports = (robot) ->
       }, (err) ->
         if (err)
           robot.logger.debug('Error - %s', err.message)
-        return
+          return
         octane.workItems.getAll({
           text_search: JSON.stringify({
             "type":"global","text":msg.match[1]
