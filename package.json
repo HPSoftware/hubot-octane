@@ -11,7 +11,8 @@
     "url": "https://github.com/HPSoftware/hubot-octane/issues"
   },
   "dependencies": {
-    "bluebird": "^3.3.4"
+    "bluebird": "^3.3.4",
+    "octane": "git+https://github.hpe.com/ALMOctane-Hackathon/node-octane.git"
   },
   "peerDependencies": {
     "hubot": "2.x"

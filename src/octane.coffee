@@ -45,6 +45,16 @@ module.exports = (robot) ->
   long_desc: 'how this integration does it'}
 
   #register some functions
+  robot.e.create {verb: 'create', entity: 'ticket',
+  help: 'create ticket', type: 'respond'}, (msg)->
+    robot.logger.debug  'in octane create ticket'
+    msg.reply 'in octane create ticket'
+
+  robot.e.create {verb: 'update', entity: 'ticket',
+  help: 'update ticket', type: 'hear'}, (msg)->
+    robot.logger.debug  'in octane update ticket'
+    msg.send 'in octane update ticket'
+
   robot.e.create {verb: 'get', entity: 'defect',
   help: 'get defect by id', type: 'hear'},
     (msg)->
