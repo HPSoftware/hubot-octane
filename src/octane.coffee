@@ -22,7 +22,7 @@
 module.exports = (robot) ->
 
   Octane = require('octane')
-  Query = require('../../node-octane/lib/query')
+  Query = require('../../octane/lib/query')
 
   octane = new Octane({
     protocol : "http",
