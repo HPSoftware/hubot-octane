@@ -25,13 +25,12 @@ module.exports = (robot) ->
   Query = require('octane/lib/query')
 
   octane = new Octane({
-    protocol : "http",
-    host :  "XXX",
-    port :  8081,
-    shared_space_id : 1001,
-    workspace_id : 1002
+    protocol : process.env.HUBOT_OCTANE_PROTOCOL,
+    host :  process.env.HUBOT_OCTANE_HOST,
+    port :  process.env.HUBOT_OCTANE_PORT,
+    shared_space_id : process.env.HUBOT_OCTANE_SHAREDSPACE,
+    workspace_id : process.env.HUBOT_OCTANE_WORKSPACE
   })
-
 
   #check if hubot-enterprise is loaded
   if not robot.e
@@ -60,8 +59,8 @@ module.exports = (robot) ->
     (msg)->
       robot.logger.debug 'in get defect by id'
       octane.authenticate({
-        username :  "",
-        password :  ""
+        username :  process.env.HUBOT_OCTANE_CLIENT_ID,
+        password :  process.env.HUBOT_OCTANE_SECRET
       }, (err) ->
         if (err)
           robot.logger.debug('Error - %s', err.message)
@@ -91,8 +90,8 @@ module.exports = (robot) ->
     (msg)->
       robot.logger.debug 'in search defect by text'
       octane.authenticate({
-        username :  "",
-        password :  ""
+        username :  process.env.HUBOT_OCTANE_CLIENT_ID,
+        password :  process.env.HUBOT_OCTANE_SECRET
       }, (err) ->
         if (err)
           robot.logger.debug('Error - %s', err.message)
@@ -125,8 +124,8 @@ module.exports = (robot) ->
       (msg)->
         robot.logger.debug 'in update defect'
         octane.authenticate({
-          username :  "",
-          password :  ""
+          username :  process.env.HUBOT_OCTANE_CLIENT_ID,
+          password :  process.env.HUBOT_OCTANE_SECRET
         }, (err) ->
           if (err)
             robot.logger.debug('Error - %s', err.message)
@@ -168,8 +167,8 @@ module.exports = (robot) ->
     (msg)->
       robot.logger.debug 'in create defect'
       octane.authenticate({
-        username :  "",
-        password :  ""
+        username :  process.env.HUBOT_OCTANE_CLIENT_ID,
+        password :  process.env.HUBOT_OCTANE_SECRET
       }, (err) ->
         if (err)
           robot.logger.debug('Error - %s', err.message)
