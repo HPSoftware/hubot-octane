@@ -24,4 +24,7 @@ def pipelineRepo = 'https://github.com/eedevops/he-jenkins-ci.git'
 def pipeline = fileLoader.fromGit('integration-flow',
     pipelineRepo, 'master', null, '')
 
-pipeline.runPipeline(pipelineRepo)
+configFileProvider([configFile(fileId: 'hubot-octane-config', variable: 'HUBOT_OCTANE_CONFIG')]) {
+  def HubotOctaneConfig = Eval.me(env.HUBOT_OCTANE_CONFIG);
+  HubotOctaneConfig.runPipeline(pipeline, pipelineRepo);
+}
