@@ -54,7 +54,8 @@ module.exports = (robot) ->
         workspace_id : process.env.HUBOT_OCTANE_WORKSPACE
       })
   else
-    robot.logger.error 'missing hubot-octane environment variables, octane cannot run'
+    errorStr = 'missing hubot-octane environment variables, octane cannot run'
+    robot.logger.error errorStr
     return
 
 
@@ -160,7 +161,11 @@ module.exports = (robot) ->
           msg.reply "No defect found"
         concatMsg = ''
         for defect in defects
-          concatMsg += 'ID: '+defect.id+' | '+'Summary: '+defect.global_text_search_result.name.replace(/(<([^>]+)>)/ig,"")+'\n'
+          concatMsg += 'ID: '+defect.id+
+              ' | '+'Summary: '+
+              defect.
+              global_text_search_result.name.replace(/(<([^>]+)>)/ig,"")+
+              '\n'
         msg.reply concatMsg
       )
     )
