@@ -25,8 +25,8 @@ node {
   def pipeline = fileLoader.fromGit('integration-flow',
     pipelineRepo, 'master', null, '')
 
-  configFileProvider([configFile(fileId: 'hubot-octane-config', variable: 'HUBOT_OCTANE_CONFIG')]) {
-    def HubotOctaneConfig = Eval.me(env.HUBOT_OCTANE_CONFIG);
+  configFileProvider([configFile(fileId: 'hubot-octane-config', target: 'hubot-octane-config.groovy')]) {
+    def HubotOctaneConfig = fileLoader.load('hubot-octane-config.groovy');
     HubotOctaneConfig.runPipeline(pipeline, pipelineRepo);
   }
 }
