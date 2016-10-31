@@ -37,9 +37,9 @@ describe 'octane', ->
     @room.destroy()
 
   it 'responds to octane create', ->
-    @room.user.say('alice', '@hubot octane create ticket').then =>
+    @room.user.say('alice', '@hubot octane create ticket aaa').then =>
       expect(@room.messages).to.eql [
-        ['alice', '@hubot octane create ticket']
+        ['alice', '@hubot octane create ticket aaa']
         ['hubot', '@alice in octane create ticket']
       ]
 
