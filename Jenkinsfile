@@ -21,9 +21,11 @@ SOFTWARE.
 */
 
 node {
-  def pipelineRepo = 'https://github.com/eedevops/he-jenkins-ci.git'
   configFileProvider([configFile(fileId: 'hubot-octane-config', targetLocation: 'hubot-octane-config.groovy')]) {
-    def HubotOctaneConfig = fileLoader.load('hubot-octane-config.groovy')
-    HubotOctaneConfig.runPipeline(pipelineRepo)
+    fileLoader.load('hubot-octane-config.groovy')
+    def pipelineRepo = 'https://github.com/eedevops/he-jenkins-ci.git'
+    def pipeline = fileLoader.fromGit('integration-flow',
+      pipelineRepo, 'master', null, '')
+    pipeline.runPipeline(pipelineRepo)
   }
 }
