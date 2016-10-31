@@ -24,196 +24,218 @@ module.exports = (robot) ->
   Octane = require('octane')
   Query = require('octane/lib/query')
 
-  octane = new Octane({
-    protocol : process.env.HUBOT_OCTANE_PROTOCOL,
-    host :  process.env.HUBOT_OCTANE_HOST,
-    port :  process.env.HUBOT_OCTANE_PORT,
-    shared_space_id : process.env.HUBOT_OCTANE_SHAREDSPACE,
-    workspace_id : process.env.HUBOT_OCTANE_WORKSPACE
-  })
-
-  #check if hubot-enterprise is loaded
-  if not robot.e
-    robot.logger.error 'hubot-enterprise not present, octane cannot run'
-    return
-  robot.logger.info 'octane initialized'
-
-  # register integration
-  robot.e.registerIntegration {name: 'octane',
-  short_desc: 'what this integration does',
-  long_desc: 'how this integration does it'}
-
-  #register some functions
-  robot.e.create {verb: 'create', entity: 'ticket',
-  help: 'create ticket', type: 'respond'}, (msg)->
+  robot.respond /octane create ticket (.*)/i,(msg) ->
     robot.logger.debug  'in octane create ticket'
     msg.reply 'in octane create ticket'
 
-  robot.e.create {verb: 'update', entity: 'ticket',
-  help: 'update ticket', type: 'hear'}, (msg)->
-    robot.logger.debug  'in octane update ticket'
-    msg.send 'in octane update ticket'
+  if (process.env.HUBOT_OCTANE_PROTOCOL &&
+    process.env.HUBOT_OCTANE_HOST &&
+    process.env.HUBOT_OCTANE_PORT &&
+    process.env.HUBOT_OCTANE_SHAREDSPACE &&
+    process.env.HUBOT_OCTANE_WORKSPACE)
+      octane = new Octane({
+        protocol : process.env.HUBOT_OCTANE_PROTOCOL,
+        host :  process.env.HUBOT_OCTANE_HOST,
+        port :  process.env.HUBOT_OCTANE_PORT,
+        shared_space_id : process.env.HUBOT_OCTANE_SHAREDSPACE,
+        workspace_id : process.env.HUBOT_OCTANE_WORKSPACE
+      })
+  else
+    robot.logger.error 'missing hubot-octane environment variables, octane cannot run'
+    return
 
-  robot.e.create {verb: 'get', entity: 'defect',
-  help: 'get defect by id', type: 'hear'},
-    (msg)->
-      robot.logger.debug 'in get defect by id'
-      octane.authenticate({
-        username :  process.env.HUBOT_OCTANE_CLIENT_ID,
-        password :  process.env.HUBOT_OCTANE_SECRET
-      }, (err) ->
+
+  #check if hubot-enterprise is loaded
+#  if robot.e
+#    # register integration
+#    robot.e.registerIntegration {name: 'octane',
+#      short_desc: 'what this integration does',
+#      long_desc: 'how this integration does it'}
+#
+#    #register some functions
+#    robot.e.create {verb: 'create', entity: 'ticket',
+#      help: 'create ticket', type: 'respond'}, (msg)->
+#      robot.logger.debug  'in octane create ticket'
+#      msg.reply 'in octane create ticket'
+#
+#    robot.e.create {verb: 'update', entity: 'ticket',
+#      help: 'update ticket', type: 'hear'}, (msg)->
+#      robot.logger.debug  'in octane update ticket'
+#      msg.send 'in octane update ticket'
+
+  robot.logger.info 'octane initialized'
+  robot.hear /get defect (.*)/i,(msg) ->
+    robot.logger.debug 'in get defect by id'
+    octane.authenticate({
+      username :  process.env.HUBOT_OCTANE_CLIENT_ID,
+      password :  process.env.HUBOT_OCTANE_SECRET
+    }, (err) ->
+      if (err)
+        robot.logger.debug('Error - %s', err.message)
+        return
+      octane.defects.getAll({
+        query: Query.field('id').equal(msg.match[1])
+      }, (err, defects) ->
         if (err)
           robot.logger.debug('Error - %s', err.message)
           return
-        octane.defects.getAll({
-          query: Query.field('id').equal(msg.match[1])
-        }, (err, defects) ->
-          if (err)
-            robot.logger.debug('Error - %s', err.message)
-            return
-          robot.logger.debug defects.meta.total_count
-          if (defects.meta.total_count < 1)
-            msg.reply "No defect found"
-          for defect in defects
-            textDefect = "Defect ID: "+defect.id
-            textDefect += "\nName: "+defect.name
-            textDefect += "\nSeverity: "+defect.severity.name
-            message =
-              text: textDefect
-              color: "warning"
-            robot.e.adapter.message msg, message, false
-        )
+        robot.logger.debug defects.meta.total_count
+        if (defects.meta.total_count < 1)
+          msg.reply "No defect found"
+        for defect in defects
+          msg.reply {
+            channel : "#{msg.message.room}",
+            attachments: JSON.stringify([{
+              color: '#7D26CD'
+              title: 'ID: ' + defect.id + ' - ' + defect.name
+              fields: [
+                {
+                  title: "Description"
+                  value: if defect.description
+                  then defect.description.replace(/(<([^>]+)>)/ig,"")
+                  else '[empty]'
+                  short: false
+                },
+                {
+                  title: "Owner"
+                  value: if defect.owner
+                  then defect.owner.name
+                  else '[empty]'
+                  short: true
+                },
+                {
+                  title: "Priority"
+                  value: if defect.priority
+                  then defect.priority.name
+                  else '[empty]'
+                  short: true
+                },
+                {
+                  title: "Phase"
+                  value: defect.phase.name
+                  short: true
+                },
+                {
+                  title: "Severity"
+                  value: defect.severity.name
+                  short: true
+                }]
+            }])
+          }
       )
+    )
 
-  robot.e.create {verb: 'search', entity: 'defect',
-  help: 'search defect by text', type: 'hear'},
-    (msg)->
-      robot.logger.debug 'in search defect by text'
-      octane.authenticate({
-        username :  process.env.HUBOT_OCTANE_CLIENT_ID,
-        password :  process.env.HUBOT_OCTANE_SECRET
-      }, (err) ->
+  robot.hear /search defect (.*)/i,(msg) ->
+    robot.logger.debug 'in search defect by text'
+    octane.authenticate({
+      username :  process.env.HUBOT_OCTANE_CLIENT_ID,
+      password :  process.env.HUBOT_OCTANE_SECRET
+    }, (err) ->
+      if (err)
+        robot.logger.debug('Error - %s', err.message)
+        return
+      octane.workItems.getAll({
+        text_search: JSON.stringify({
+          "type":"global","text":msg.match[1]
+        }),query: Query.field('subtype').equal('defect')
+      }, (err, defects) ->
         if (err)
           robot.logger.debug('Error - %s', err.message)
           return
-        octane.workItems.getAll({
-          text_search: JSON.stringify({
-            "type":"global","text":msg.match[1]
-          }),query: Query.field('subtype').equal('defect')
-        }, (err, defects) ->
-          if (err)
-            robot.logger.debug('Error - %s', err.message)
-            return
-          robot.logger.debug defects.meta.total_count
-          if (defects.meta.total_count < 1)
-            msg.reply "No defect found"
-          for defect in defects
-            textDefect = "Defect ID: "+defect.id
-            textDefect += "\nName: "+defect.global_text_search_result.name
-            defectDesc = defect.global_text_search_result.description
-            textDefect += "\nDescription: "+defectDesc
-            message =
-              text: textDefect
-              color: "warning"
-            robot.e.adapter.message msg, message, false
-        )
+        robot.logger.debug defects.meta.total_count
+        if (defects.meta.total_count < 1)
+          msg.reply "No defect found"
+        concatMsg = ''
+        for defect in defects
+          concatMsg += 'ID: '+defect.id+' | '+'Summary: '+defect.name+'\n'
+        msg.reply concatMsg
       )
+    )
 
-    robot.e.create {verb: 'update', entity: 'defect',
-    help: 'update defect [ID] [field]=[Value]', type: 'hear'},
-      (msg)->
-        robot.logger.debug 'in update defect'
-        octane.authenticate({
-          username :  process.env.HUBOT_OCTANE_CLIENT_ID,
-          password :  process.env.HUBOT_OCTANE_SECRET
-        }, (err) ->
+  robot.hear /update defect (.*)/i,(msg) ->
+    robot.logger.debug 'in update defect'
+    octane.authenticate({
+      username :  process.env.HUBOT_OCTANE_CLIENT_ID,
+      password :  process.env.HUBOT_OCTANE_SECRET
+    }, (err) ->
+      if (err)
+        robot.logger.debug('Error - %s', err.message)
+        return
+
+      fieldPart = msg.match[1].split(" ")[1]
+      fieldName = fieldPart.split("=")[0]
+      fieldValue = fieldPart.split("=")[1]
+
+      listNode = 'list_node.'+fieldName+'.'+fieldValue
+      octane.listNodes.getAll({
+        query: Query.field('logical_name').equal(listNode)
+      }, (err, listNodes) ->
+        if (err)
+          robot.logger.debug('Error - %s', err.message)
+          return
+        update = {
+          id: msg.match[1].split(" ")[0]
+        }
+        if listNodes[0]
+        then update[fieldName] = listNodes[0]
+        else update[fieldName] = fieldValue
+        octane.defects.update(update, (err, updated)->
+          if err
+            msg.reply 'defect was not updated- check your syntax'
+            robot.logger.debug('Error - %s', err.message)
+            return
+          msg.reply 'defect '+updated.id+' updated successfully'
+        )
+
+      )
+    )
+
+  robot.hear /create defect (.*)/i,(msg) ->
+    robot.logger.debug 'in create defect'
+    octane.authenticate({
+      username :  process.env.HUBOT_OCTANE_CLIENT_ID,
+      password :  process.env.HUBOT_OCTANE_SECRET
+    }, (err) ->
+      if (err)
+        robot.logger.debug('Error - %s', err.message)
+        return
+
+      octane.workItems.getAll({
+        query: Query.field('subtype').equal('work_item_root')
+      }, (err, wis)->
+        if (err)
+          robot.logger.debug('Error - %s', err.message)
+          return
+        high = 'list_node.severity.very_high'
+        octane.listNodes.getAll({
+          query: Query.field('logical_name').equal(high)
+        }, (err, severities) ->
           if (err)
             robot.logger.debug('Error - %s', err.message)
             return
 
-          fieldPart = msg.match[1].split(" ")[1]
-          fieldName = fieldPart.split("=")[0]
-          fieldValue = fieldPart.split("=")[1]
-
-          listNode = 'list_node.'+fieldName+'.'+fieldValue
-          octane.listNodes.getAll({
-            query: Query.field('logical_name').equal(listNode)
-          }, (err, listNodes) ->
+          octane.phases.getAll({
+            query: Query.field('logical_name').equal('phase.defect.new')
+          }, (err, phases) ->
             if (err)
               robot.logger.debug('Error - %s', err.message)
               return
-            update = {
-              id: msg.match[1].split(" ")[0]
+            defect = {
+              name: msg.match[1],
+              parent: wis[0],
+              severity: severities[0],
+              phase: phases[0]
             }
-            update[fieldName] = listNodes[0]
-            octane.defects.update(update, (err, updated)->
-              if err
-                robot.logger.debug('Error - %s', err.message)
-                return
-              textDefect = "Defect ID: "+updated.id
-              textDefect += "\nName: "+updated.name
-              textDefect += "\n"+fieldName+": "+updated[fieldName].name
-              message =
-                text: textDefect
-                color: "warning"
-              robot.e.adapter.message msg, message, false
-            )
-
-          )
-        )
-
-  robot.e.create {verb: 'create', entity: 'defect',
-  help: 'create defect', type: 'hear'},
-    (msg)->
-      robot.logger.debug 'in create defect'
-      octane.authenticate({
-        username :  process.env.HUBOT_OCTANE_CLIENT_ID,
-        password :  process.env.HUBOT_OCTANE_SECRET
-      }, (err) ->
-        if (err)
-          robot.logger.debug('Error - %s', err.message)
-          return
-
-        octane.workItems.getAll({
-          query: Query.field('subtype').equal('work_item_root')
-        }, (err, wis)->
-          if (err)
-            robot.logger.debug('Error - %s', err.message)
-            return
-          high = 'list_node.severity.very_high'
-          octane.listNodes.getAll({
-            query: Query.field('logical_name').equal(high)
-          }, (err, severities) ->
-            if (err)
-              robot.logger.debug('Error - %s', err.message)
-              return
-
-            octane.phases.getAll({
-              query: Query.field('logical_name').equal('phase.defect.new')
-            }, (err, phases) ->
+            octane.defects.create(defect, (err, defect) ->
               if (err)
                 robot.logger.debug('Error - %s', err.message)
                 return
-              defect = {
-                name: msg.match[1],
-                parent: wis[0],
-                severity: severities[0],
-                phase: phases[0]
-              }
-              octane.defects.create(defect, (err, defect) ->
-                if (err)
-                  robot.logger.debug('Error - %s', err.message)
-                  return
-                message =
-                  title: "Defect create successfully"
-                  text: "ID is: "+defect.id
-                  color: "good"
-                robot.e.adapter.message msg, message, false
-              )
+              msg.reply "defect created successfully. ID: "+defect.id
             )
           )
         )
       )
+    )
 
 
 
