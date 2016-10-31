@@ -24,6 +24,10 @@ module.exports = (robot) ->
   Octane = require('octane')
   Query = require('octane/lib/query')
 
+  robot.respond /octane create ticket (.*)/i,(msg) ->
+    robot.logger.debug  'in octane create ticket'
+    msg.reply 'in octane create ticket'
+
   if (process.env.HUBOT_OCTANE_PROTOCOL &&
     process.env.HUBOT_OCTANE_HOST &&
     process.env.HUBOT_OCTANE_PORT &&
@@ -40,9 +44,7 @@ module.exports = (robot) ->
     robot.logger.error 'missing hubot-octane environment variables, octane cannot run'
     return
 
-  robot.respond /octane create ticket (.*)/i,(msg) ->
-    robot.logger.debug  'in octane create ticket'
-    msg.reply 'in octane create ticket'
+
   #check if hubot-enterprise is loaded
 #  if robot.e
 #    # register integration
