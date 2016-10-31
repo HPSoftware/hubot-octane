@@ -204,7 +204,7 @@ module.exports = (robot) ->
       )
     )
 
-  robot.hear /octane create defect (.*)/i,(msg) ->
+  robot.hear /octane create defect (.*)/i,(msg) -> #create defect name=abc,severity=high
     robot.logger.debug 'in create defect'
     octane.authenticate({
       username :  process.env.HUBOT_OCTANE_CLIENT_ID,
@@ -214,15 +214,16 @@ module.exports = (robot) ->
         robot.logger.debug('Error - %s', err.message)
         return
 
+      params = extractParams(msg.match[1])
       octane.workItems.getAll({
         query: Query.field('subtype').equal('work_item_root')
       }, (err, wis)->
         if (err)
           robot.logger.debug('Error - %s', err.message)
           return
-        high = 'list_node.severity.very_high'
+        firstSeverity = 'list_node.severity.'+params[1].fieldValue
         octane.listNodes.getAll({
-          query: Query.field('logical_name').equal(high)
+          query: Query.field('logical_name').equal(firstSeverity)
         }, (err, severities) ->
           if (err)
             robot.logger.debug('Error - %s', err.message)
@@ -235,7 +236,7 @@ module.exports = (robot) ->
               robot.logger.debug('Error - %s', err.message)
               return
             defect = {
-              name: msg.match[1],
+              name: params[0].fieldValue,
               parent: wis[0],
               severity: severities[0],
               phase: phases[0]
