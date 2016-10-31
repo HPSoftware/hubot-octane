@@ -1,3 +1,16 @@
+# Description:
+#   Interact octane
+#
+# Dependencies:
+#   node-octane
+#
+#
+# Commands:
+#   octane get defect [id]
+#   octane search defect [text]
+#   octane update defect [id] [fieldName]=[fieldValue]
+#   octane create defect name=[name],severity=[severity]
+#
 # Notes:
 #  Copyright 2016 Hewlett-Packard Development Company, L.P.
 #
