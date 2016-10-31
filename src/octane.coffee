@@ -64,8 +64,8 @@ module.exports = (robot) ->
 #      msg.send 'in octane update ticket'
 
   robot.logger.info 'octane initialized'
-  robot.hear /get defect (.*)/i,(msg) ->
-    robot.logger.debug 'in get defect by id'
+  robot.hear /octane get defect ([0-9]+)/i,(msg) ->
+    robot.logger.debug 'in get defect by id '+JSON.stringify(msg.match)
     octane.authenticate({
       username :  process.env.HUBOT_OCTANE_CLIENT_ID,
       password :  process.env.HUBOT_OCTANE_SECRET
@@ -125,8 +125,8 @@ module.exports = (robot) ->
       )
     )
 
-  robot.hear /search defect (.*)/i,(msg) ->
-    robot.logger.debug 'in search defect by text'
+  robot.hear /octane search defect (.*)/i,(msg) ->
+    robot.logger.debug 'in search defect by text '+msg.match[1]
     octane.authenticate({
       username :  process.env.HUBOT_OCTANE_CLIENT_ID,
       password :  process.env.HUBOT_OCTANE_SECRET
@@ -147,12 +147,12 @@ module.exports = (robot) ->
           msg.reply "No defect found"
         concatMsg = ''
         for defect in defects
-          concatMsg += 'ID: '+defect.id+' | '+'Summary: '+defect.name+'\n'
+          concatMsg += 'ID: '+defect.id+' | '+'Summary: '+defect.global_text_search_result.name.replace(/(<([^>]+)>)/ig,"")+'\n'
         msg.reply concatMsg
       )
     )
 
-  robot.hear /update defect (.*)/i,(msg) ->
+  robot.hear /octane update defect ([0-9]+ )(.*)/i,(msg) ->
     robot.logger.debug 'in update defect'
     octane.authenticate({
       username :  process.env.HUBOT_OCTANE_CLIENT_ID,
@@ -162,9 +162,9 @@ module.exports = (robot) ->
         robot.logger.debug('Error - %s', err.message)
         return
 
-      fieldPart = msg.match[1].split(" ")[1]
-      fieldName = fieldPart.split("=")[0]
-      fieldValue = fieldPart.split("=")[1]
+      fields = extractParams(msg.match[2])
+      fieldName = fields[0].fieldName
+      fieldValue = fields[0].fieldValue
 
       listNode = 'list_node.'+fieldName+'.'+fieldValue
       octane.listNodes.getAll({
@@ -174,7 +174,7 @@ module.exports = (robot) ->
           robot.logger.debug('Error - %s', err.message)
           return
         update = {
-          id: msg.match[1].split(" ")[0]
+          id: msg.match[1]
         }
         if listNodes[0]
         then update[fieldName] = listNodes[0]
@@ -190,7 +190,7 @@ module.exports = (robot) ->
       )
     )
 
-  robot.hear /create defect (.*)/i,(msg) ->
+  robot.hear /octane create defect (.*)/i,(msg) ->
     robot.logger.debug 'in create defect'
     octane.authenticate({
       username :  process.env.HUBOT_OCTANE_CLIENT_ID,
