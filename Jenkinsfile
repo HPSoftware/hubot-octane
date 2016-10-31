@@ -24,17 +24,4 @@ def pipelineRepo = 'https://github.com/eedevops/he-jenkins-ci.git'
 def pipeline = fileLoader.fromGit('integration-flow',
     pipelineRepo, 'master', null, '')
 
-withEnv([
-  "HUBOT_LOG_LEVEL=DEBUG",
-  "HUBOT_OCTANE_PROTOCOL=http",
-  "HUBOT_OCTANE_HOST=myd-vm10629.hpeswlab.net",
-  "HUBOT_OCTANE_PORT=8081",
-  "HUBOT_OCTANE_CLIENT_ID=sa@nga",
-  "HUBOT_OCTANE_SECRET=Welcome1",
-  "HUBOT_OCTANE_SHAREDSPACE=1001",
-  "HUBOT_OCTANE_WORKSPACE=1002",
-  "SLACK_APP_TOKEN=xoxp-39257588437-39207759971-98063563223-591a8de5cf8fd0fadfd04e9337dea4f0",
-  "HUBOT_SLACK_TOKEN=xoxb-98052756150-EAOPHS4RDD1MPA8IkeqNDmYo"])
-{
-  pipeline.runPipeline(pipelineRepo)
-}
+pipeline.runPipeline(pipelineRepo)
