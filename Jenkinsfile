@@ -21,6 +21,11 @@ SOFTWARE.
 */
 
 node {
+  /*
+    The section below loads Octane-server-related variables. These variables are persisted into a Jenkins config file,
+    named 'hubot-octane-config'. To review/edit this file please go to: Jenkins UI -> Jenkins -> Manage Jenkins ->
+    Managed Files -> Groovy files -> hubot-octane-config
+  */
   configFileProvider([configFile(fileId: 'hubot-octane-config', targetLocation: 'hubot-octane-config.groovy')]) {
     fileLoader.load('hubot-octane-config.groovy')
   }
