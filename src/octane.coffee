@@ -64,8 +64,8 @@ module.exports = (robot) ->
 #      msg.send 'in octane update ticket'
 
   robot.logger.info 'octane initialized'
-  robot.hear /get defect (.*)/i,(msg) ->
-    robot.logger.debug 'in get defect by id'
+  robot.hear /octane get defect ([0-9]+)/i,(msg) ->
+    robot.logger.debug 'in get defect by id '+JSON.stringify(msg.match)
     octane.authenticate({
       username :  process.env.HUBOT_OCTANE_CLIENT_ID,
       password :  process.env.HUBOT_OCTANE_SECRET
