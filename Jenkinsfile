@@ -36,7 +36,6 @@ node {
     env.HUBOT_OCTANE_WORKSPACE='<VALUE>'
     env.SLACK_APP_TOKEN='<VALUE>'
     env.HUBOT_SLACK_TOKEN='<VALUE>'
-
   */
   configFileProvider([configFile(fileId: 'hubot-octane-config', targetLocation: 'hubot-octane-config.groovy')]) {
     fileLoader.load('hubot-octane-config.groovy')
