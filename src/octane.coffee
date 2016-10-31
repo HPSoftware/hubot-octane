@@ -152,6 +152,15 @@ module.exports = (robot) ->
       )
     )
 
+  extractParams = (params) -> #sending msg.match[1] : name=abc,severity=low
+    returnParams = []
+    for couple in params.split(",")
+      returnParams.push({
+        fieldName: couple.split("=")[0]
+        fieldValue: couple.split("=")[1]
+      })
+    return returnParams
+
   robot.hear /octane update defect ([0-9]+ )(.*)/i,(msg) ->
     robot.logger.debug 'in update defect'
     octane.authenticate({
