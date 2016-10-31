@@ -24,34 +24,42 @@ module.exports = (robot) ->
   Octane = require('octane')
   Query = require('octane/lib/query')
 
-  if (process.env.HUBOT_OCTANE_PROTOCOL && process.env.HUBOT_OCTANE_HOST && process.env.HUBOT_OCTANE_PORT && process.env.HUBOT_OCTANE_SHAREDSPACE && process.env.HUBOT_OCTANE_WORKSPACE)
-    octane = new Octane({
-      protocol : process.env.HUBOT_OCTANE_PROTOCOL,
-      host :  process.env.HUBOT_OCTANE_HOST,
-      port :  process.env.HUBOT_OCTANE_PORT,
-      shared_space_id : process.env.HUBOT_OCTANE_SHAREDSPACE,
-      workspace_id : process.env.HUBOT_OCTANE_WORKSPACE
-    })
+  if (process.env.HUBOT_OCTANE_PROTOCOL &&
+    process.env.HUBOT_OCTANE_HOST &&
+    process.env.HUBOT_OCTANE_PORT &&
+    process.env.HUBOT_OCTANE_SHAREDSPACE &&
+    process.env.HUBOT_OCTANE_WORKSPACE)
+      octane = new Octane({
+        protocol : process.env.HUBOT_OCTANE_PROTOCOL,
+        host :  process.env.HUBOT_OCTANE_HOST,
+        port :  process.env.HUBOT_OCTANE_PORT,
+        shared_space_id : process.env.HUBOT_OCTANE_SHAREDSPACE,
+        workspace_id : process.env.HUBOT_OCTANE_WORKSPACE
+      })
   else
     robot.logger.error 'missing hubot-octane environment variables, octane cannot run'
     return
+
+  robot.respond /octane create ticket (.*)/i,(msg) ->
+    robot.logger.debug  'in octane create ticket'
+    msg.reply 'in octane create ticket'
   #check if hubot-enterprise is loaded
-  if robot.e
-    # register integration
-    robot.e.registerIntegration {name: 'octane',
-      short_desc: 'what this integration does',
-      long_desc: 'how this integration does it'}
-
-    #register some functions
-    robot.e.create {verb: 'create', entity: 'ticket',
-      help: 'create ticket', type: 'respond'}, (msg)->
-      robot.logger.debug  'in octane create ticket'
-      msg.reply 'in octane create ticket'
-
-    robot.e.create {verb: 'update', entity: 'ticket',
-      help: 'update ticket', type: 'hear'}, (msg)->
-      robot.logger.debug  'in octane update ticket'
-      msg.send 'in octane update ticket'
+#  if robot.e
+#    # register integration
+#    robot.e.registerIntegration {name: 'octane',
+#      short_desc: 'what this integration does',
+#      long_desc: 'how this integration does it'}
+#
+#    #register some functions
+#    robot.e.create {verb: 'create', entity: 'ticket',
+#      help: 'create ticket', type: 'respond'}, (msg)->
+#      robot.logger.debug  'in octane create ticket'
+#      msg.reply 'in octane create ticket'
+#
+#    robot.e.create {verb: 'update', entity: 'ticket',
+#      help: 'update ticket', type: 'hear'}, (msg)->
+#      robot.logger.debug  'in octane update ticket'
+#      msg.send 'in octane update ticket'
 
   robot.logger.info 'octane initialized'
   robot.hear /get defect (.*)/i,(msg) ->
