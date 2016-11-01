@@ -21,12 +21,29 @@ SOFTWARE.
 */
 
 node {
-  def pipelineRepo = 'https://github.com/eedevops/he-jenkins-ci.git'
-  def pipeline = fileLoader.fromGit('integration-flow',
-    pipelineRepo, 'master', null, '')
+  /*
+    The section below loads Octane-server-related variables. These variables are persisted into a Jenkins config file,
+    named 'hubot-octane-config'. To review/edit this file please go to: Jenkins UI -> Jenkins -> Manage Jenkins ->
+    Managed Files -> Groovy files -> hubot-octane-config. The format of this file should be:
 
+    env.HUBOT_LOG_LEVEL='<VALUE>'
+    env.HUBOT_OCTANE_PROTOCOL='<VALUE>'
+    env.HUBOT_OCTANE_HOST='<VALUE>'
+    env.HUBOT_OCTANE_PORT='<VALUE>'
+    env.HUBOT_OCTANE_CLIENT_ID='<VALUE>'
+    env.HUBOT_OCTANE_SECRET='<VALUE>'
+    env.HUBOT_OCTANE_SHAREDSPACE='<VALUE>'
+    env.HUBOT_OCTANE_WORKSPACE='<VALUE>'
+    env.SLACK_APP_TOKEN='<VALUE>'
+    env.HUBOT_SLACK_TOKEN='<VALUE>'
+  */
   configFileProvider([configFile(fileId: 'hubot-octane-config', targetLocation: 'hubot-octane-config.groovy')]) {
-    def HubotOctaneConfig = fileLoader.load('hubot-octane-config.groovy');
-    HubotOctaneConfig.runPipeline(pipeline, pipelineRepo);
+    fileLoader.load('hubot-octane-config.groovy')
   }
 }
+
+def pipelineRepo = 'https://github.com/eedevops/he-jenkins-ci.git'
+def pipeline = fileLoader.fromGit('integration-flow',
+  pipelineRepo, 'master', null, '')
+pipeline.runPipeline(pipelineRepo)
+
